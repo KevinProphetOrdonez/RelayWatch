@@ -1,24 +1,45 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+
 
 public class Timer {
-	public static final long MILLIS_TO_MINUTES = 60000; 
-	public static final long MILLIS_TO_HOURS = 3600000;
+	public static final long MILLIS_TO_MINUTES = 60000; //Constant used to calculate miliseconds to minutes 
+	public static final long MILLIS_TO_HOURS = 3600000; //Constant used to calculate miliseconds to hours
 	
-	private long CountDownTime;
-	private Display display;
-	boolean isRunning;
+	private long CountDownTime; //Long to store the time the user wants to stop at
+	private LinkedList<Integer> countDowns; //Linked list containing the countdowns the user wants
+	Iterator<Integer> countDownTracker; //Iterator will be used to run all countdowns until linked list is empty
+	
+	private Display display; //Reference to Parent class
+	boolean isRunning; //Flag used to start and stop timer
 	
 	
-	public Timer(Display parent) {
-		display = parent;
+	public Timer(Display parent, LinkedList<Integer> userCountDowns) { //constructer saved parent reference
+		display = parent; 
+		countDowns = userCountDowns; //Linked list containing user count downs
+		countDownTracker = countDowns.iterator();// iterator to traverse the linked list
+		
 	}
-	public void StopTimer() {
+	public void StopTimer() {//Method used to change flag and in turn stop the timer
 		isRunning = false;
 	}
-	public void StartTimer() {
+	public void StartTimer() { //Method used to change flag and in turn start the timer
 		isRunning = true;
-		CountDownTime = System.currentTimeMillis() + 10000;
+		CountDownTime = System.currentTimeMillis() + countDownTracker.next(); //Returns the next count down in the list
 		run();
 	}
+	public void NextCountDown() {
+		System.out.println("Starting next Count Down...");
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CountDownTime = System.currentTimeMillis() + countDownTracker.next();
+	}
+	
 	
 	public void run() {
 		while(isRunning) {
@@ -32,17 +53,23 @@ public class Timer {
 			display.updateCountDown(time);
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(900);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			if(hours == 0 && minutes == 0 && seconds == 0) {
-				StopTimer();
+				if(countDownTracker.hasNext())
+				{
+					NextCountDown();
+				}else {
+					StopTimer();
+				}
+				
 			}
 			
-			
 		}
+	
 	}
 }
